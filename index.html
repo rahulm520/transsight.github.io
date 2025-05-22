@@ -585,5 +585,25 @@
             <small>For Demo Only – Not for actual investigations</small>
         </footer>
     </div>
+        <script>
+        // Close popup functionality
+        document.getElementById('closePopup').addEventListener('click', function() {
+            document.getElementById('demoPopup').classList.add('hidden');
+            
+            // Remove from DOM after animation completes
+            setTimeout(() => {
+                document.getElementById('demoPopup').remove();
+            }, 300);
+        });
+
+        // Close popup automatically after 8 seconds
+        setTimeout(() => {
+            const popup = document.getElementById('demoPopup');
+            if (popup) {
+                popup.classList.add('hidden');
+                setTimeout(() => popup.remove(), 300);
+            }
+        }, 8000);
+    </script>
 </body>
 </html>
