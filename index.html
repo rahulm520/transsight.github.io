@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransSight - RBI-Compliant Layering Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #1A1D28;
+            --card-bg: #252A3A;
+            --teal: #2DD4BF;
+            --red: #F87171;
+            --yellow: #FBBF24;
+            --green: #34D399;
+            --text-light: #E5E7EB;
+            --text-gray: #9CA3AF;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--teal), #0EA5E9);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logo-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .logo-text p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+
+        /* Upload Panel */
+        .upload-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(45, 212, 191, 0.3);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--teal);
+            background-color: rgba(45, 212, 191, 0.05);
+        }
+
+        .upload-btn {
+            background-color: var(--teal);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .formats {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Anomalies Table */
+        .anomalies-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--teal);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .risk-high {
+            color: var(--red);
+        }
+
+        .risk-medium {
+            color: var(--yellow);
+        }
+
+        .risk-low {
+            color: var(--green);
+        }
+
+        .view-btn {
+            background: transparent;
+            border: 1px solid var(--teal);
+            color: var(--teal);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* Visualization */
+        .visualization {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graph-placeholder {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(45, 212, 191, 0.1) 0%, transparent 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+
+        .node-central {
+            background-color: var(--red);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+        }
+
+        .node-1 {
+            background-color: var(--yellow);
+            top: 30%;
+            left: 20%;
+        }
+
+        .node-2 {
+            background-color: var(--green);
+            top: 70%;
+            left: 25%;
+        }
+
+        .node-3 {
+            background-color: var(--yellow);
+            top: 20%;
+            left: 70%;
+        }
+
+        .node-4 {
+            background-color: var(--green);
+            top: 65%;
+            left: 75%;
+        }
+
+        .connection {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.2);
+            height: 2px;
+            transform-origin: left center;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .transaction-details h3 {
+            margin-top: 0;
+            color: var(--teal);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .flags {
+            background-color: rgba(248, 113, 113, 0.1);
+            border-left: 3px solid var(--red);
+            padding: 10px;
+            margin: 20px 0;
+            font-size: 0.85rem;
+        }
+
+        .rbi-btn {
+            background-color: var(--teal);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        /* Footer */
+        footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">TS</div>
+                <div class="logo-text">
+                    <h1>TransSight</h1>
+                    <p>RBI-Compliant Layering Detection for Forensic Teams</p>
+                </div>
+            </div>
+            <div class="filters">
+                <span>Channel: </span>
+                <select>
+                    <option>All</option>
+                    <option>UPI</option>
+                    <option>NEFT</option>
+                    <option>RTGS</option>
+                    <option>IMPS</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Left Column -->
+        <div class="left-column">
+            <div class="upload-card">
+                <h3>Upload Bank Statement</h3>
+                <div class="upload-area">
+                    <p>Drag & drop your bank statement file here</p>
+                    <button class="upload-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload Excel/CSV
+                    </button>
+                </div>
+                <p class="formats">Supports SBI, HDFC, ICICI, Axis, and PNB formats (.xlsx, .csv)</p>
+                <button class="upload-btn" style="background-color: transparent; border: 1px solid var(--teal);">
+                    Load Demo (PMLA 2002 Scenario)
+                </button>
+            </div>
+
+            <div class="anomalies-card">
+                <h3>Flagged Transactions (Sample)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Txn ID</th>
+                            <th>Amount (₹)</th>
+                            <th>Channel</th>
+                            <th>Sender → Receiver</th>
+                            <th>Risk Level</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>15-03-2025</td>
+                            <td>UPI789XYZ</td>
+                            <td>₹2,50,000</td>
+                            <td>UPI</td>
+                            <td>Acct:XXXXX → Wallet:PhonePe</td>
+                            <td class="risk-high">🔴 High</td>
+                            <td><button class="view-btn">View Trace</button></td>
+                        </tr>
+                        <tr>
+                            <td>14-03-2025</td>
+                            <td>NEFT456AB</td>
+                            <td>₹8,20,000</td>
+                            <td>NEFT</td>
+                            <td>X → Y → Z (3 hops in 2 hrs)</td>
+                            <td class="risk-medium">🟡 Medium</td>
+                            <td><button class="view-btn">View Trace</button></td>
+                        </tr>
+                        <tr>
+                            <td>13-03-2025</td>
+                            <td>RTGS123CD</td>
+                            <td>₹5,00,000</td>
+                            <td>RTGS</td>
+                            <td>A → B (Same PAN detected)</td>
+                            <td class="risk-high">🔴 High</td>
+                            <td><button class="view-btn">View Trace</button></td>
+                        </tr>
+                        <tr>
+                            <td>12-03-2025</td>
+                            <td>IMPS789EF</td>
+                            <td>₹1,20,000</td>
+                            <td>IMPS</td>
+                            <td>C → D (Multiple small txns)</td>
+                            <td class="risk-medium">🟡 Medium</td>
+                            <td><button class="view-btn">View Trace</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <div class="visualization">
+                <h3>Transaction Flow Visualization</h3>
+                <div class="graph-placeholder">
+                    <!-- Central Node -->
+                    <div class="node node-central">M</div>
+                    
+                    <!-- Connected Nodes -->
+                    <div class="node node-1">J</div>
+                    <div class="node node-2">S</div>
+                    <div class="node node-3">W</div>
+                    <div class="node node-4">B</div>
+                    
+                    <!-- Connections -->
+                    <div class="connection" style="width: 120px; top: 50%; left: 50%; transform: rotate(-30deg);"></div>
+                    <div class="connection" style="width: 100px; top: 50%; left: 50%; transform: rotate(20deg);"></div>
+                    <div class="connection" style="width: 150px; top: 50%; left: 50%; transform: rotate(-160deg);"></div>
+                    <div class="connection" style="width: 130px; top: 50%; left: 50%; transform: rotate(120deg);"></div>
+                    
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--red);"></div>
+                            <span>Suspicious</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--yellow);"></div>
+                            <span>Medium Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--green);"></div>
+                            <span>Clean</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="transaction-details">
+                    <h3>Transaction Details</h3>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Transaction ID</div>
+                        <div class="detail-value">UPI789XYZ</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Amount</div>
+                        <div class="detail-value">₹2,50,000 <span class="risk-high">(Above PMLA threshold)</span></div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Date & Time</div>
+                        <div class="detail-value">15-03-2025 02:15 AM IST <span class="risk-medium">(Unusual hour)</span></div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">From → To</div>
+                        <div class="detail-value">Kumar A. (SBI XXXX5678) → Wallet:PhonePe (VPA: xyz@ybl)</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Device Info</div>
+                        <div class="detail-value">OnePlus Nord (Android 13), IP: 152.58.xx.xx (Jio 4G)</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value">UPI @ Ahmedabad (23.03°N, 72.58°E)</div>
+                    </div>
+                    
+                    <div class="flags">
+                        ⚠️ <strong>Compliance Flags:</strong><br>
+                        • No KYC for recipient wallet<br>
+                        • Same IP accessed 4 accounts in 1 hour
+                    </div>
+                    
+                    <button class="rbi-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Request Full Trail (Sec 12 PMLA)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Prototype complies with RBI KYC/AML Guidelines (2025) | Data sourced from mock FIU-India datasets<br>
+            <small>For Demo Only – Not for actual investigations</small>
+        </footer>
+    </div>
+</body>
+</html>
