@@ -17,6 +17,55 @@
             --text-gray: #9CA3AF;
         }
 
+        /* New Popup Styles */
+        .demo-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--teal);
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 600px;
+            width: 90%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .demo-popup.hidden {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+
+        @keyframes slideIn {
+            from { top: -100px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { top: 20px; opacity: 1; }
+            to { top: -100px; opacity: 0; }
+        }
+
+        .demo-popup-close {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 0 5px;
+        }
+
+        .demo-popup-icon {
+            color: var(--teal);
+            font-size: 1.5rem;
+        }
+        
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: var(--dark-bg);
@@ -332,6 +381,18 @@
     </style>
 </head>
 <body>
+
+     <!-- Demo Notification Popup -->
+    <div class="demo-popup" id="demoPopup">
+        <div class="demo-popup-icon">ℹ️</div>
+        <div>
+            <strong>Demo Notice:</strong> This is a frontend prototype only. The complete project with real detection algorithms 
+            will be developed during the hackathon. Data shown is simulated for demonstration purposes.
+        </div>
+        <button class="demo-popup-close" id="closePopup">&times;</button>
+    </div>
+
+    <div class="container">
     <div class="container">
         <header>
             <div class="logo">
