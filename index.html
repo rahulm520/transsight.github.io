@@ -17,7 +17,7 @@
             --text-gray: #9CA3AF;
         }
 
-        /* New Popup Styles */
+        /* Demo Popup Styles */
         .demo-popup {
             position: fixed;
             top: 20px;
@@ -64,8 +64,10 @@
         .demo-popup-icon {
             color: var(--teal);
             font-size: 1.5rem;
+            flex-shrink: 0;
         }
-        
+
+        /* Base Styles */
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: var(--dark-bg);
@@ -122,12 +124,25 @@
             color: var(--text-gray);
         }
 
+        .filters select {
+            background-color: var(--card-bg);
+            color: var(--text-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
         /* Upload Panel */
         .upload-card {
             background-color: var(--card-bg);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
+        }
+
+        .upload-card h3 {
+            margin-top: 0;
+            color: var(--teal);
         }
 
         .upload-area {
@@ -156,6 +171,11 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .upload-btn:hover {
+            background-color: #22b3a0;
         }
 
         .formats {
@@ -170,6 +190,11 @@
             background-color: var(--card-bg);
             border-radius: 10px;
             padding: 20px;
+        }
+
+        .anomalies-card h3 {
+            margin-top: 0;
+            color: var(--teal);
         }
 
         table {
@@ -215,6 +240,11 @@
             border-radius: 4px;
             font-size: 0.8rem;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn:hover {
+            background-color: rgba(45, 212, 191, 0.1);
         }
 
         /* Visualization */
@@ -225,6 +255,11 @@
             height: 400px;
             position: relative;
             overflow: hidden;
+        }
+
+        .visualization h3 {
+            margin-top: 0;
+            color: var(--teal);
         }
 
         .graph-placeholder {
@@ -247,6 +282,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 0.7rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .node-central {
@@ -295,6 +331,9 @@
             left: 20px;
             display: flex;
             gap: 15px;
+            background-color: rgba(0,0,0,0.5);
+            padding: 8px 12px;
+            border-radius: 6px;
         }
 
         .legend-item {
@@ -360,6 +399,11 @@
             justify-content: center;
             gap: 8px;
             margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .rbi-btn:hover {
+            background-color: #22b3a0;
         }
 
         /* Footer */
@@ -377,12 +421,22 @@
             .container {
                 grid-template-columns: 1fr;
             }
+            
+            .demo-popup {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+            
+            .demo-popup-close {
+                margin-left: 0;
+                margin-top: 5px;
+            }
         }
     </style>
 </head>
 <body>
-
-     <!-- Demo Notification Popup -->
+    <!-- Demo Notification Popup -->
     <div class="demo-popup" id="demoPopup">
         <div class="demo-popup-icon">ℹ️</div>
         <div>
@@ -392,7 +446,6 @@
         <button class="demo-popup-close" id="closePopup">&times;</button>
     </div>
 
-    <div class="container">
     <div class="container">
         <header>
             <div class="logo">
@@ -585,14 +638,16 @@
             <small>For Demo Only – Not for actual investigations</small>
         </footer>
     </div>
-        <script>
+
+    <script>
         // Close popup functionality
         document.getElementById('closePopup').addEventListener('click', function() {
             document.getElementById('demoPopup').classList.add('hidden');
             
             // Remove from DOM after animation completes
             setTimeout(() => {
-                document.getElementById('demoPopup').remove();
+                const popup = document.getElementById('demoPopup');
+                if (popup) popup.remove();
             }, 300);
         });
 
